@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
@@ -61,19 +62,9 @@ namespace Controllers
       }
     }
 
-    public async Task<ContentResult> UserRestrictedCall()
+    public IActionResult UserRestrictedCall()
     {
-      using (var client = new HttpClient())
-      {
-        client.BaseAddress = new Uri(_clientSettings.Uri);
-        client.DefaultRequestHeaders.Accept.Clear();
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.hmrc.1.0+json"));
-
-        HttpResponseMessage response = await client.GetAsync("hello/user");
-
-        String resp = await response.Content.ReadAsStringAsync();
-        return Content(resp, "application/json");
-      }
+      return Challenge(new AuthenticationProperties() { RedirectUri = "" });
     }
   }
 }

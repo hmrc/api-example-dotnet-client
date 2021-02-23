@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +25,25 @@ namespace testWebApp
     public void ConfigureServices(IServiceCollection services)
     {
       services.Configure<ClientSettings>(Configuration);
+
+      services.AddAuthentication(options =>
+      {
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = "HMRC";
+      })
+      .AddCookie()
+      .AddOAuth("HMRC", options =>
+      {
+        options.ClientId = Configuration["clientId"];
+        options.ClientSecret = Configuration["clientSecret"];
+        options.CallbackPath = new PathString("/oauth20/callback");
+        options.Scope.Add("hello");
+
+        options.AuthorizationEndpoint = Configuration["uri"] + "/oauth/authorize";
+        options.TokenEndpoint = Configuration["uri"] + "/oauth/token";
+      });
+
       services.AddRazorPages(options =>
       {
         options.Conventions.AddPageRoute("/HelloWorld/Index", "");
@@ -46,6 +67,8 @@ namespace testWebApp
       app.UseRouting();
 
       app.UseAuthorization();
+
+      app.UseAuthentication();
 
       app.UseEndpoints(endpoints =>
       {
