@@ -1,6 +1,7 @@
 {
-  "uri": "https://api.service.hmrc.gov.uk",
+  "uri": "???",
   "serverToken": "???",
   "clientId": "???",
-  "clientSecret": "???"
+  "clientSecret": "???",
+  "oauthCallbackUri": "???"
 }

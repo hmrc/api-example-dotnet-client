@@ -62,9 +62,29 @@ namespace Controllers
       }
     }
 
-    public IActionResult UserRestrictedCall()
+    public async Task<IActionResult> UserRestrictedCall()
     {
-      return Challenge(new AuthenticationProperties() { RedirectUri = "/HelloWorld/UserRestrictedCall" }, "HMRC");
+      string accessToken = await HttpContext.GetTokenAsync("access_token");
+      
+      if(accessToken != null)
+      {
+        using (var client = new HttpClient())
+        {
+          client.BaseAddress = new Uri(_clientSettings.Uri);
+          client.DefaultRequestHeaders.Accept.Clear();
+          client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.hmrc.1.0+json"));
+          client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+          HttpResponseMessage response = await client.GetAsync("hello/user");
+
+          String resp = await response.Content.ReadAsStringAsync();
+          return Content(resp, "application/json");
+        }
+      }
+      else
+      {
+        return Challenge(new AuthenticationProperties() { RedirectUri = "/HelloWorld/UserRestrictedCall" }, "HMRC");
+      }
     }
   }
 }
