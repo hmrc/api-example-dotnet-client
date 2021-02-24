@@ -6,4 +6,5 @@ public class ClientSettings
   public string ServerToken { get; set; }
   public string ClientId { get; set; }
   public string ClientSecret { get; set; }
+  public string OauthCallbackUri { get; set; }
 }

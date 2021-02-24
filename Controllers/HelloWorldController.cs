@@ -64,7 +64,7 @@ namespace Controllers
 
     public IActionResult UserRestrictedCall()
     {
-      return Challenge(new AuthenticationProperties() { RedirectUri = "" });
+      return Challenge(new AuthenticationProperties() { RedirectUri = "/HelloWorld/UserRestrictedCall" }, "HMRC");
     }
   }
 }

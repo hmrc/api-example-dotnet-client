@@ -26,6 +26,13 @@ namespace testWebApp
     {
       services.Configure<ClientSettings>(Configuration);
 
+      services.AddSession(options =>
+      {
+          options.IdleTimeout = TimeSpan.FromSeconds(10);
+          options.Cookie.HttpOnly = true;
+          options.Cookie.IsEssential = true;
+      });
+
       services.AddAuthentication(options =>
       {
         options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -37,8 +44,9 @@ namespace testWebApp
       {
         options.ClientId = Configuration["clientId"];
         options.ClientSecret = Configuration["clientSecret"];
-        options.CallbackPath = new PathString("/oauth20/callback");
+        options.CallbackPath = new PathString(Configuration["oauthCallbackUri"]);
         options.Scope.Add("hello");
+        options.SaveTokens = true;
 
         options.AuthorizationEndpoint = Configuration["uri"] + "/oauth/authorize";
         options.TokenEndpoint = Configuration["uri"] + "/oauth/token";
@@ -63,12 +71,10 @@ namespace testWebApp
       }
 
       app.UseStaticFiles();
-
       app.UseRouting();
-
       app.UseAuthorization();
-
       app.UseAuthentication();
+      app.UseSession();
 
       app.UseEndpoints(endpoints =>
       {
@@ -76,7 +82,8 @@ namespace testWebApp
 
         endpoints.MapControllerRoute(
           name: "default",
-          pattern: "{controller=HelloWorld}/{action=Index}");
+          pattern: "{controller=HelloWorld}/{action=Index}"
+        );
       });
     }
   }
