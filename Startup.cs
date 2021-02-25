@@ -23,6 +23,12 @@ namespace testWebApp
     {
       services.Configure<ClientSettings>(Configuration);
 
+      services.Configure<CookiePolicyOptions>(options =>
+      {
+        options.CheckConsentNeeded = context => true;
+        options.MinimumSameSitePolicy = SameSiteMode.None;
+      });
+
       services.AddSession(options =>
       {
           options.IdleTimeout = TimeSpan.FromSeconds(10);
@@ -65,13 +71,17 @@ namespace testWebApp
       else
       {
         app.UseExceptionHandler("/Error");
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
       }
 
+      app.UseHttpsRedirection();
       app.UseStaticFiles();
       app.UseRouting();
       app.UseAuthorization();
       app.UseAuthentication();
       app.UseSession();
+      app.UseCookiePolicy();
 
       app.UseEndpoints(endpoints =>
       {
