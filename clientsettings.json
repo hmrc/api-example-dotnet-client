@@ -2,5 +2,5 @@
   "uri": "https://api.service.hmrc.gov.uk",
   "clientId": "???",
   "clientSecret": "???",
-  "callbackPath": "???"
+  "callbackPath": "/callback"
 }

@@ -52,6 +52,7 @@ namespace testWebApp
         options.DefaultChallengeScheme = "HMRC";
       })
       .AddCookie()
+
       .AddOAuth("HMRC", options =>
       {
         options.ClientId = Configuration["clientId"];
@@ -76,6 +77,7 @@ namespace testWebApp
           GrantType = "client_credentials"
         });
       });
+
       services.AddClientAccessTokenHttpClient("hmrcAppRestrictedClient", configureClient: client =>
       {
           client.BaseAddress = new Uri(Configuration["uri"]);
