@@ -16,10 +16,12 @@ namespace Controllers
     private const string userRestrictedEndpoint = "/user";
 
     private readonly ClientSettings _clientSettings;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public HelloWorldController(IOptions<ClientSettings> clientSettingsOptions)
+    public HelloWorldController(IOptions<ClientSettings> clientSettingsOptions, IHttpClientFactory httpClientFactory)
     {
       _clientSettings = clientSettingsOptions.Value;
+      _httpClientFactory = httpClientFactory;
     }
 
     public IActionResult Index()
@@ -48,17 +50,10 @@ namespace Controllers
 
     public async Task<ContentResult> AppRestrictedCall()
     {
-      using (var client = new HttpClient())
+      using(var client = _httpClientFactory.CreateClient("hmrcAppRestrictedClient"))
       {
-        client.BaseAddress = new Uri(_clientSettings.Uri);
-        client.DefaultRequestHeaders.Accept.Clear();
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.hmrc.1.0+json"));
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _clientSettings.ServerToken);
-
-        HttpResponseMessage response = await client.GetAsync("hello/application");
-
-        String resp = await response.Content.ReadAsStringAsync();
-        return Content(resp, "application/json");
+        var response = await client.GetStringAsync("/hello/application");
+        return Content(response, "application/json");
       }
     }
 
