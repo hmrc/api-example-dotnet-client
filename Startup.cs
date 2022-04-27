@@ -6,6 +6,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using IdentityModel.AspNetCore.AccessTokenManagement;
+using IdentityModel.AspNetCore;
+using IdentityModel.Client;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
+using System.Net.Http;
+using System.Net.Http.Headers;
+
+using Serilog;
 
 namespace testWebApp
 {
@@ -43,11 +52,12 @@ namespace testWebApp
         options.DefaultChallengeScheme = "HMRC";
       })
       .AddCookie()
+
       .AddOAuth("HMRC", options =>
       {
         options.ClientId = Configuration["clientId"];
         options.ClientSecret = Configuration["clientSecret"];
-        options.CallbackPath = new PathString(Configuration["oauthCallbackUri"]);
+        options.CallbackPath = new PathString(Configuration["callbackPath"]);
         options.Scope.Add("hello");
         options.SaveTokens = true;
 
@@ -55,6 +65,25 @@ namespace testWebApp
         options.TokenEndpoint = Configuration["uri"] + "/oauth/token";
       });
 
+      // Add App Restricted Endpoint Support
+      services.AddAccessTokenManagement(options =>
+      {
+        options.Client.Clients.Add("hmrcAppRestrictedTokenMgmt", new ClientCredentialsTokenRequest
+        {
+          Address = Configuration["uri"] + "/oauth/token",
+          ClientId = Configuration["clientId"],
+          ClientSecret = Configuration["clientSecret"],
+          Scope = "hello",
+          GrantType = "client_credentials"
+        });
+      });
+
+      services.AddClientAccessTokenHttpClient("hmrcAppRestrictedClient", configureClient: client =>
+      {
+          client.BaseAddress = new Uri(Configuration["uri"]);
+          client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.hmrc.1.0+json"));
+      });
+      
       services.AddRazorPages(options =>
       {
         options.Conventions.AddPageRoute("/HelloWorld/Index", "");

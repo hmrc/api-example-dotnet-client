@@ -9,7 +9,7 @@ It accesses three endpoints, each with their own authorisation requirements:
 * Hello Application - an Application-restricted endpoint that responds with the message “Hello Application!”
 * Hello User - a User-restricted endpoint (accessed using an OAuth 2.0 token) that responds with the message “Hello User!”
 
-You will need to add the Redirect URI 'https://localhost:8081' to your application ('https://developer.service.hmrc.gov.uk/developer/applications/').
+You will need to add the Redirect URI 'https://localhost:9000' to your application ('https://developer.service.hmrc.gov.uk/developer/applications/').
 
 API documentation is available at https://developer.service.hmrc.gov.uk/api-documentation
 
